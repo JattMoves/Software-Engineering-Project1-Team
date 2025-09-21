@@ -1,26 +1,57 @@
-from urllib.parse import urlparse
+# url_category.py
+"""
+Module for classifying and handling different URL types (MODEL, DATASET, CODE).
+"""
 
-def detect_category(url: str) -> str:
-    # MODEL: https://huggingface.co/<org>/<model>[/...]
-    # DATASET: https://huggingface.co/datasets/<org>/<ds>
-    # CODE (heuristic): github.com/<org>/<repo>
-    p = urlparse(url)
-    host, path = p.netloc, p.path.strip("/")
-    if host == "huggingface.co" and not path.startswith("datasets/") and len(path.split("/")) >= 2:
-        return "MODEL"
-    if host == "huggingface.co" and path.startswith("datasets/"):
-        return "DATASET"
-    if host in {"github.com", "gitlab.com"}:
-        return "CODE"
+import re
+from typing import Literal
+
+Category = Literal["MODEL", "DATASET", "CODE", "UNKNOWN"]
+
+class URLHandler:
+    """Base class for URL handling."""
+
+    def __init__(self, url: str):
+        self.url = url
+
+    def get_category(self) -> Category:
+        raise NotImplementedError("Subclasses must implement this method")
+
+
+class HFModelHandler(URLHandler):
+    """Handles Hugging Face model URLs."""
+
+    def get_category(self) -> Category:
+        if "huggingface.co" in self.url and "/datasets/" not in self.url:
+            return "MODEL"
+        return "UNKNOWN"
+
+
+class HFDatasetHandler(URLHandler):
+    """Handles Hugging Face dataset URLs."""
+
+    def get_category(self) -> Category:
+        if "huggingface.co/datasets/" in self.url:
+            return "DATASET"
+        return "UNKNOWN"
+
+
+class GitHubHandler(URLHandler):
+    """Handles GitHub code repository URLs."""
+
+    def get_category(self) -> Category:
+        if "github.com" in self.url:
+            return "CODE"
+        return "UNKNOWN"
+
+
+def categorize_url(url: str) -> Category:
+    """
+    Determines the category of a given URL.
+    """
+    handlers = [HFModelHandler(url), HFDatasetHandler(url), GitHubHandler(url)]
+    for handler in handlers:
+        category = handler.get_category()
+        if category != "UNKNOWN":
+            return category
     return "UNKNOWN"
-
-def model_id_from_hf_url(url: str) -> str | None:
-    p = urlparse(url)
-    if p.netloc != "huggingface.co":
-        return None
-    parts = p.path.strip("/").split("/")
-    if parts and parts[0] == "datasets":
-        return None
-    if len(parts) >= 2:
-        return f"{parts[0]}/{parts[1]}"
-    return None

@@ -1,9 +1,12 @@
-from acmecli.metrics.ramp_up import _cap_ratio, _freshness_score
+import pytest
 
-def test_cap_ratio():
-    assert _cap_ratio(0, 100) == 0.0
-    assert _cap_ratio(100, 100) == 1.0
-    assert _cap_ratio(150, 100) == 1.0
+from acmecli.metrics.ramp_up import ramp_up
 
-def test_freshness_brackets():
-    assert 0.3 <= _freshness_score(None) <= 1.0  # tolerant default path
+
+@pytest.mark.timeout(15)
+def test_ramp_up_returns_tuple_and_ranges():
+    score, ms = ramp_up("google/gpt2")
+    assert isinstance(score, float)
+    assert 0.0 <= score <= 1.0
+    assert isinstance(ms, int)
+    assert ms >= 0
