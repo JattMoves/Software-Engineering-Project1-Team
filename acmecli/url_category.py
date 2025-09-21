@@ -1,57 +1,68 @@
-# url_category.py
 """
-Module for classifying and handling different URL types (MODEL, DATASET, CODE).
+URL categorization utilities for ACME CLI.
+
+Functions:
+- detect_category(url) -> "MODEL" | "DATASET" | "CODE" | "UNKNOWN"
+- model_id_from_hf_url(url) -> "org/model" | None
 """
 
-import re
-from typing import Literal
+from __future__ import annotations
+
+from typing import Literal, Optional
+from urllib.parse import urlparse
 
 Category = Literal["MODEL", "DATASET", "CODE", "UNKNOWN"]
 
-class URLHandler:
-    """Base class for URL handling."""
 
-    def __init__(self, url: str):
-        self.url = url
+def detect_category(url: str) -> Category:
+    """
+    Classify a URL into one of the supported categories.
 
-    def get_category(self) -> Category:
-        raise NotImplementedError("Subclasses must implement this method")
-
-
-class HFModelHandler(URLHandler):
-    """Handles Hugging Face model URLs."""
-
-    def get_category(self) -> Category:
-        if "huggingface.co" in self.url and "/datasets/" not in self.url:
-            return "MODEL"
+    Rules (Phase 1):
+      - Hugging Face dataset URLs contain '/datasets/'
+      - Hugging Face model URLs are on huggingface.co but NOT '/datasets/'
+      - GitHub repo URLs are code
+      - Otherwise: UNKNOWN
+    """
+    if not url:
         return "UNKNOWN"
 
+    parsed = urlparse(url)
+    host = parsed.netloc.lower()
+    path = parsed.path.lower()
 
-class HFDatasetHandler(URLHandler):
-    """Handles Hugging Face dataset URLs."""
-
-    def get_category(self) -> Category:
-        if "huggingface.co/datasets/" in self.url:
+    if "huggingface.co" in host:
+        if path.startswith("/datasets/") or "/datasets/" in path:
             return "DATASET"
-        return "UNKNOWN"
+        return "MODEL"
 
+    if "github.com" in host:
+        return "CODE"
 
-class GitHubHandler(URLHandler):
-    """Handles GitHub code repository URLs."""
-
-    def get_category(self) -> Category:
-        if "github.com" in self.url:
-            return "CODE"
-        return "UNKNOWN"
-
-
-def categorize_url(url: str) -> Category:
-    """
-    Determines the category of a given URL.
-    """
-    handlers = [HFModelHandler(url), HFDatasetHandler(url), GitHubHandler(url)]
-    for handler in handlers:
-        category = handler.get_category()
-        if category != "UNKNOWN":
-            return category
     return "UNKNOWN"
+
+
+def model_id_from_hf_url(url: str) -> Optional[str]:
+    """
+    Extract 'org/model' from a Hugging Face MODEL url.
+    Returns None for dataset/invalid URLs.
+    Examples:
+      https://huggingface.co/google/gpt2                -> google/gpt2
+      https://huggingface.co/google/gpt2/tree/main      -> google/gpt2
+      https://huggingface.co/datasets/xlangai/AgentNet  -> None
+    """
+    if not url:
+        return None
+
+    parsed = urlparse(url)
+    if "huggingface.co" not in parsed.netloc.lower():
+        return None
+
+    parts = parsed.path.strip("/").split("/")
+    if not parts or parts[0] == "datasets":
+        return None
+
+    # Need at least org + model
+    if len(parts) >= 2:
+        return f"{parts[0]}/{parts[1]}"
+    return None

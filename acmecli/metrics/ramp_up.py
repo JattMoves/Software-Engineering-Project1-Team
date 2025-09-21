@@ -8,8 +8,10 @@ Returns:
 """
 
 from __future__ import annotations
+
 import time
 from typing import Tuple
+
 from huggingface_hub import model_info
 
 
