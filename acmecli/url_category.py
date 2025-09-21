@@ -1,41 +1,57 @@
-# acmecli/url_category.py
-# acmecli/url_category.py
-from urllib.parse import urlparse
+# url_category.py
+"""
+Module for classifying and handling different URL types (MODEL, DATASET, CODE).
+"""
+
+import re
+from typing import Literal
+
+Category = Literal["MODEL", "DATASET", "CODE", "UNKNOWN"]
+
+class URLHandler:
+    """Base class for URL handling."""
+
+    def __init__(self, url: str):
+        self.url = url
+
+    def get_category(self) -> Category:
+        raise NotImplementedError("Subclasses must implement this method")
 
 
-def detect_category(url: str) -> str | None:
-    """
-    Detect category of a given URL:
-    - Hugging Face model: "MODEL"
-    - Hugging Face dataset: "DATASET"
-    - GitHub repo: "CODE"
-    """
-    if not url:
-        return None
+class HFModelHandler(URLHandler):
+    """Handles Hugging Face model URLs."""
 
-    parsed = urlparse(url)
-    host = parsed.netloc.lower()
-    path = parsed.path.strip("/")
+    def get_category(self) -> Category:
+        if "huggingface.co" in self.url and "/datasets/" not in self.url:
+            return "MODEL"
+        return "UNKNOWN"
 
-    if "huggingface.co" in host:
-        if path.startswith("datasets/"):
+
+class HFDatasetHandler(URLHandler):
+    """Handles Hugging Face dataset URLs."""
+
+    def get_category(self) -> Category:
+        if "huggingface.co/datasets/" in self.url:
             return "DATASET"
-        return "MODEL"
-    if "github.com" in host:
-        return "CODE"
-    return None
+        return "UNKNOWN"
 
 
-def model_id_from_hf_url(url: str) -> str | None:
+class GitHubHandler(URLHandler):
+    """Handles GitHub code repository URLs."""
+
+    def get_category(self) -> Category:
+        if "github.com" in self.url:
+            return "CODE"
+        return "UNKNOWN"
+
+
+def categorize_url(url: str) -> Category:
     """
-    Extract model ID (e.g. 'org/model') from a Hugging Face model URL.
-    Returns None for dataset URLs.
+    Determines the category of a given URL.
     """
-    parsed = urlparse(url)
-    path_parts = parsed.path.strip("/").split("/")
-    if not path_parts or path_parts[0] == "datasets":
-        return None
-    # at least org + model
-    if len(path_parts) >= 2:
-        return f"{path_parts[0]}/{path_parts[1]}"
-    return None
+    handlers = [HFModelHandler(url), HFDatasetHandler(url), GitHubHandler(url)]
+    for handler in handlers:
+        category = handler.get_category()
+        if category != "UNKNOWN":
+            return category
+    return "UNKNOWN"
