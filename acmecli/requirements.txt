@@ -1,0 +1,6 @@
+requests
+dataclasses
+pytest
+mypy
+flake8
+isort
