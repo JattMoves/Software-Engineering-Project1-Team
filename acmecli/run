@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ "$1" == "install" ]; then
+    pip install --user -r requirements.txt
+    exit 0
+elif [ "$1" == "test" ]; then
+    python -m unittest discover -s tests
+    exit $?
+elif [ -f "$1" ]; then
+    python main.py "$1"
+    exit $?
+else
+    echo "Usage: ./run [install|test|URL_FILE]"
+    exit 1
+fi
