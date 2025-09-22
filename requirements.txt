@@ -1,5 +1,4 @@
 huggingface_hub
-requests
 pytest
 coverage
 flake8
