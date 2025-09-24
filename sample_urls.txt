@@ -1,0 +1,7 @@
+https://huggingface.co/google/gemma-3-270m
+https://huggingface.co/datasets/xlangai/AgentNet
+https://github.com/SkyworkAI/Matrix-Game
+https://huggingface.co/google/gpt2
+https://huggingface.co/datasets/xlangai/AgentNet
+https://github.com/huggingface/transformers
+https://huggingface.co/microsoft/DialoGPT-medium
