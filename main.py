@@ -152,12 +152,14 @@ class MLEvaluator:
             
             # Look for test summary line
             for line in lines:
-                if "failed" in line and "passed" in line:
-                    # Extract numbers from pytest summary like "146 passed, 69 failed"
+                if "passed" in line:
+                    # Extract numbers from pytest summary like "122 passed" or "146 passed, 69 failed"
                     parts = line.split()
                     for i, part in enumerate(parts):
-                        if part == "passed,":
+                        if part == "passed," or part == "passed":
                             passed_count = int(parts[i-1])
+                            if "failed" not in line:
+                                test_count = passed_count
                         elif part == "failed":
                             failed_count = int(parts[i-1])
                             test_count = passed_count + failed_count
