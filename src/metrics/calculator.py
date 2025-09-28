@@ -81,7 +81,8 @@ class MetricsCalculator:
                     # Provide default values on failure
                     if metric_name == 'size_score':
                         metrics[metric_name] = {
-                            "raspberry_pi_jetson_nano": 0.0,
+                            "raspberry_pi": 0.0,
+                            "jetson_nano": 0.0,
                             "desktop_pc": 0.5,
                             "aws_server": 1.0
                         }
@@ -109,7 +110,8 @@ class MetricsCalculator:
             "license": metrics.get("license", 0.0),
             "license_latency": metrics.get("license_latency", 1000),
             "size_score": metrics.get("size_score", {
-                "raspberry_pi_jetson_nano": 0.0,
+                "raspberry_pi": 0.0,
+                "jetson_nano": 0.0,
                 "desktop_pc": 0.5,
                 "aws_server": 1.0
             }),

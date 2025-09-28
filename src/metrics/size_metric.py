@@ -19,7 +19,8 @@ class SizeMetric:
         
         # Hardware constraints (in GB)
         self.hardware_limits = {
-            'raspberry_pi_jetson_nano': 1.0,    # Combined constraint for small devices
+            'raspberry_pi': 1.0,    # 1GB model constraint
+            'jetson_nano': 4.0,     # 4GB RAM typical
             'desktop_pc': 16.0,     # 16GB RAM typical
             'aws_server': 64.0      # Large instance
         }
