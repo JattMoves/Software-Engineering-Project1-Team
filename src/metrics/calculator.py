@@ -93,7 +93,7 @@ class MetricsCalculator:
         # Calculate net score
         net_score_start = time.time()
         net_score = self._calculate_net_score(metrics)
-        net_score_latency = int((time.time() - net_score_start) * 1000)
+        net_score_latency = max(1, int((time.time() - net_score_start) * 1000))
         
         # Build final result
         result = {
