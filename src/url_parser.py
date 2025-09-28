@@ -43,8 +43,8 @@ class URLParser:
             if '/tree/main' in url:
                 url = url.replace('/tree/main', '')
             
-            # Extract org/model from URL
-            pattern = r'huggingface\.co/([^/]+/[^/?]+)'
+            # Extract model name from URL (handle both org/model and model formats)
+            pattern = r'huggingface\.co/([^/?]+)'
             match = re.search(pattern, url)
             if not match:
                 self.logger.error(f"Could not parse model URL: {url}")
