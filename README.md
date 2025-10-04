@@ -44,7 +44,7 @@ https://github.com/SkyworkAI/Matrix-Game
 
 ## Output Format
 
-The tool outputs NDJSON (newline-delimited JSON) with the following fields for each model:
+The tool outputs NDJSON (newline-delimited JSON), where each line is a valid JSON object with the following fields for each model:
 
 - `name`: Model name
 - `category`: Always "MODEL" 
