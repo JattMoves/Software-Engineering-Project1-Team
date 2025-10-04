@@ -208,6 +208,11 @@ isort src/ tests/
 mypy src/
 ```
 
+## Support
+
+For questions or support, please open an issue on the [GitHub repository](https://github.com/JattMoves/Software-Engineering-Project1-Team/issues).
+
+
 ## License
 
 This project uses the GNU Lesser General Public License v2.1.
